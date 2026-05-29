@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Arizona Seasonal Time Converter</title>
+
+	<script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+
+	<style>
+		body {
+			margin: 0;
+			height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: #0f0f0f;
+			color: white;
+			font-family: Arial, sans-serif;
+		}
+
+		.box {
+			background: #1c1c1c;
+			padding: 30px;
+			border-radius: 12px;
+			width: 520px;
+		}
+
+		h2 {
+			margin-top: 0;
+		}
+
+        .divider {
+            margin: 0;
+            padding: 10px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+		.section {
+			margin: 7.5px 0px;
+			padding: 12px;
+			background: #2a2a2a;
+			border-radius: 8px;
+			transition: box-shadow 0.25s ease, border 0.25s ease;
+		}
+
+        .output {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            gap: 10px;
+        }
+
+        .output .section {
+            flex: 1;
+        }
+
+		.label {
+			color: #aaa;
+			font-size: 13px;
+		}
+
+		.value {
+			font-size: 20px;
+			margin-top: 5px;
+		}
+
+		/* ACTIVE HIGHLIGHT ONLY ON ONE SECTION */
+		.active {
+			border: 2px solid #60a5fa;
+			box-shadow: 0 0 12px rgba(96, 165, 250, 0.35);
+		}
+	</style>
+</head>
+<body>
+
+<div class="box">
+	<h2>Arizona Seasonal Time Converter</h2>
+
+	<div class="section">
+		<div class="label">Arizona time</div>
+		<div class="value" id="input"></div>
+	</div>
+    <div class="divider">– Converts to –</div>
+    <div class="output">
+        <div class="section" id="winterBox">
+            <div class="label">Local time in Winter (Nov–Mar)</div>
+            <div class="value" id="winter"></div>
+        </div>
+
+        <div class="section" id="summerBox">
+            <div class="label">Local time in Summer (Mar–Nov)</div>
+            <div class="value" id="summer"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+	const { DateTime } = luxon;
+
+	function getTimeFromURL() {
+		const p = new URLSearchParams(window.location.search);
+		return p.get("t") || "13:00";
+	}
+
+	function parseTime(t) {
+		const [h, m] = t.split(":").map(Number);
+		return { h, m };
+	}
+
+	function formatTime(dateObj) {
+		return DateTime.fromJSDate(dateObj).toFormat("h:mm a");
+	}
+
+	const input = getTimeFromURL();
+	const { h, m } = parseTime(input);
+
+	const zone = "America/Phoenix";
+
+	const winter = DateTime.fromObject(
+		{ year: 2024, month: 1, day: 15, hour: h, minute: m },
+		{ zone }
+	).toJSDate();
+
+	const summer = DateTime.fromObject(
+		{ year: 2024, month: 7, day: 15, hour: h, minute: m },
+		{ zone }
+	).toJSDate();
+
+	const inputDisplay = DateTime.fromObject(
+		{ year: 2024, month: 1, day: 1, hour: h, minute: m }
+	).toFormat("h:mm a");
+
+	document.getElementById("input").innerText = `${inputDisplay}`;
+	document.getElementById("winter").innerText = formatTime(winter);
+	document.getElementById("summer").innerText = formatTime(summer);
+
+	// ---------------------------
+	// Highlight ONLY the active result box
+	// ---------------------------
+	function getActiveSeason() {
+		const month = new Date().getMonth() + 1;
+		return (month >= 3 && month < 11) ? "summer" : "winter";
+	}
+
+	const active = getActiveSeason();
+
+	if (active === "winter") {
+		document.getElementById("winterBox").classList.add("active");
+	} else {
+		document.getElementById("summerBox").classList.add("active");
+	}
+</script>
+
+</body>
+</html>
