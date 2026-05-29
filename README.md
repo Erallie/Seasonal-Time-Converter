@@ -6,7 +6,7 @@ To use it, to go the link: `https://erallie.github.io/Seasonal-Time-Converter/?t
 - `Country/City` is the IANA time zone identifier.
 
 For example, if you want to display 1pm in Arizona time, you would do:
-`https://erallie.github.io/Seasonal-Time-Converter/?t=13:00&tz=America/Phoenix`
+- `https://erallie.github.io/Seasonal-Time-Converter/?t=13:00&tz=America/Phoenix`
 
 ~~For now, this is only limited to Arizona. But in the future, I may change it so that it can use any time zone. Depending on popular demand.~~
 
