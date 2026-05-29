@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Arizona Seasonal Time Converter</title>
+	<title>Seasonal Time Converter</title>
 
 	<script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
 
@@ -75,10 +75,10 @@
 <body>
 
 <div class="box">
-	<h2>Arizona Seasonal Time Converter</h2>
+	<h2>Seasonal Time Converter</h2>
 
 	<div class="section">
-		<div class="label">Arizona time</div>
+		<div class="label" id="inputLabel">Arizona time</div>
 		<div class="value" id="input"></div>
 	</div>
     <div class="divider">– Converts to –</div>
@@ -103,6 +103,11 @@
 		return p.get("t") || "13:00";
 	}
 
+	function getZoneFromURL() {
+		const p = new URLSearchParams(window.location.search);
+		return p.get("tz") || "America/Phoenix";
+	}
+
 	function parseTime(t) {
 		const [h, m] = t.split(":").map(Number);
 		return { h, m };
@@ -113,25 +118,34 @@
 	}
 
 	const input = getTimeFromURL();
+	const fromZone = getZoneFromURL();
 	const { h, m } = parseTime(input);
 
-	const zone = "America/Phoenix";
+	const phoenixZone = "America/Phoenix";
 
-	const winter = DateTime.fromObject(
+	// interpret input time in the selected source timezone
+	const sourceDate = DateTime.fromObject(
 		{ year: 2024, month: 1, day: 15, hour: h, minute: m },
-		{ zone }
-	).toJSDate();
+		{ zone: fromZone }
+	);
+
+	// convert that same moment into Arizona winter/summer display contexts
+	const winter = sourceDate.setZone(phoenixZone).toJSDate();
 
 	const summer = DateTime.fromObject(
 		{ year: 2024, month: 7, day: 15, hour: h, minute: m },
-		{ zone }
-	).toJSDate();
+		{ zone: fromZone }
+	)
+	.setZone(phoenixZone)
+	.toJSDate();
 
 	const inputDisplay = DateTime.fromObject(
-		{ year: 2024, month: 1, day: 1, hour: h, minute: m }
+		{ year: 2024, month: 1, day: 1, hour: h, minute: m },
+		{ zone: fromZone }
 	).toFormat("h:mm a");
 
 	document.getElementById("input").innerText = `${inputDisplay}`;
+	document.getElementById("inputLabel").innerText = `Time for ${fromZone}`;
 	document.getElementById("winter").innerText = formatTime(winter);
 	document.getElementById("summer").innerText = formatTime(summer);
 
